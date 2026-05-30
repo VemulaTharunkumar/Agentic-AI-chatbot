@@ -1,9 +1,19 @@
+<<<<<<< HEAD
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { LogOut, Copy, Send, Bot, Check, LayoutDashboard, Brain, Globe, Code, FileText, Trash2 } from 'lucide-react';
 import ThinkingLoader from './ThinkingLoader';
 import './Dashboard.css';
 const API_URL = "https://agentic-ai-chatbot-1-30s7.onrender.com";
+=======
+import React, { useState, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
+import { LogOut, Copy, Send, Bot, Check, LayoutDashboard, Brain, Globe, Code, FileText, Trash2, Search, Pin, Star, Edit2, MoreVertical, X, Clock } from 'lucide-react';
+import ThinkingLoader from './ThinkingLoader';
+import StreamingMarkdown from './StreamingMarkdown';
+import './Dashboard.css';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+>>>>>>> 9640e9d (Updated code)
 const Dashboard = ({ user, onLogout }) => {
   const [task, setTask] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -15,6 +25,25 @@ const Dashboard = ({ user, onLogout }) => {
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [selectedHistoryItem, setSelectedHistoryItem] = useState(null);
   const [popupAgent, setPopupAgent] = useState(null);
+<<<<<<< HEAD
+=======
+  
+  // States for delete animation
+  const [deletingIds, setDeletingIds] = useState(new Set());
+  const [slidingOutIds, setSlidingOutIds] = useState(new Set());
+  const [toast, setToast] = useState(null);
+
+  // States for advanced conversation management
+  const [searchQuery, setSearchQuery] = useState('');
+  const [editingChatId, setEditingChatId] = useState(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [softDeletedChats, setSoftDeletedChats] = useState({});
+  const [undoToast, setUndoToast] = useState(null);
+
+  // Streaming state
+  const [isStreaming, setIsStreaming] = useState(false);
+  const mainContentRef = useRef(null);
+>>>>>>> 9640e9d (Updated code)
 
   React.useEffect(() => {
     const fetchHistory = async () => {
@@ -47,7 +76,11 @@ const Dashboard = ({ user, onLogout }) => {
     setPopupAgent(null);
 
     try {
+<<<<<<< HEAD
       const response = await fetch('https://agentic-ai-chatbot-1-30s7.onrender.com/api/task', {
+=======
+      const response = await fetch(`${API_URL}/api/task`, {
+>>>>>>> 9640e9d (Updated code)
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ task, username: user.username })
@@ -57,14 +90,27 @@ const Dashboard = ({ user, onLogout }) => {
 
       if (response.ok) {
         setResult(data);
+<<<<<<< HEAD
+=======
+        setIsStreaming(true);
+>>>>>>> 9640e9d (Updated code)
         
         // Append to chat history
         const newHistoryItem = {
           _id: data.chat_id || Date.now().toString(), // Use actual DB ID
           prompt: task,
+<<<<<<< HEAD
           response: data.final_answer,
           agent: data.agents.join(", "),
           timestamp: new Date().toISOString()
+=======
+          title: task.length > 30 ? task.substring(0, 30) + '...' : task,
+          response: data.final_answer,
+          agent: data.agents.join(", "),
+          timestamp: new Date().toISOString(),
+          is_pinned: false,
+          is_favorite: false
+>>>>>>> 9640e9d (Updated code)
         };
         setChatHistory(prev => [...prev, newHistoryItem]);
         
@@ -78,6 +124,7 @@ const Dashboard = ({ user, onLogout }) => {
     }
   };
 
+<<<<<<< HEAD
   const handleDeleteChat = async (e, chatId) => {
     e.stopPropagation(); // prevent selecting the chat when clicking delete
 
@@ -103,6 +150,113 @@ const Dashboard = ({ user, onLogout }) => {
     }
   };
 
+=======
+  const handleUpdateChat = async (chatId, updates) => {
+    setChatHistory(prev => prev.map(chat => chat._id === chatId ? { ...chat, ...updates } : chat));
+    try {
+      await fetch(`${API_URL}/api/history/${chatId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+    } catch (err) {
+      console.error("Failed to update chat metadata", err);
+    }
+  };
+
+  const handleRenameSubmit = (chatId) => {
+    if (editTitle.trim()) {
+      handleUpdateChat(chatId, { title: editTitle });
+    }
+    setEditingChatId(null);
+  };
+
+  const handleDeleteChat = (e, chatId, chatTitle) => {
+    e.stopPropagation();
+
+    // Start sliding out
+    setSlidingOutIds(prev => new Set(prev).add(chatId));
+
+    setTimeout(() => {
+      // Soft delete visually
+      setSoftDeletedChats(prev => ({ ...prev, [chatId]: true }));
+      setSlidingOutIds(prev => {
+        const next = new Set(prev);
+        next.delete(chatId);
+        return next;
+      });
+
+      if (selectedHistoryItem?._id === chatId) {
+        setSelectedHistoryItem(null);
+      }
+
+      // Set undo toast with 5s timer
+      const timerId = setTimeout(async () => {
+        try {
+          await fetch(`${API_URL}/api/history/${chatId}`, { method: 'DELETE' });
+          setChatHistory(prev => prev.filter(c => c._id !== chatId));
+          setUndoToast(null);
+        } catch (err) {
+          console.error("Deletion failed", err);
+        }
+      }, 5000);
+
+      setUndoToast({ chatId, title: chatTitle || "Conversation", timerId });
+    }, 400);
+  };
+
+  const handleUndoDelete = () => {
+    if (undoToast) {
+      clearTimeout(undoToast.timerId);
+      setSoftDeletedChats(prev => {
+        const next = { ...prev };
+        delete next[undoToast.chatId];
+        return next;
+      });
+      setUndoToast(null);
+      setToast("✅ Undo successful");
+      setTimeout(() => setToast(null), 3000);
+    }
+  };
+
+  // Grouping
+  const groupConversations = (history) => {
+    const groups = { pinned: [], today: [], yesterday: [], last7days: [], older: [] };
+    const now = new Date();
+    const todayStr = now.toDateString();
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toDateString();
+    const sevenDaysAgo = new Date(now);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    history.forEach(chat => {
+      if (softDeletedChats[chat._id]) return;
+      if (searchQuery && !(chat.title || chat.prompt).toLowerCase().includes(searchQuery.toLowerCase())) return;
+
+      if (chat.is_pinned) {
+        groups.pinned.push(chat);
+        return;
+      }
+
+      const chatDate = new Date(chat.timestamp);
+      const chatDateStr = chatDate.toDateString();
+
+      if (chatDateStr === todayStr) {
+        groups.today.push(chat);
+      } else if (chatDateStr === yesterdayStr) {
+        groups.yesterday.push(chat);
+      } else if (chatDate >= sevenDaysAgo) {
+        groups.last7days.push(chat);
+      } else {
+        groups.older.push(chat);
+      }
+    });
+    return groups;
+  };
+  const groupedHistory = groupConversations(chatHistory);
+
+>>>>>>> 9640e9d (Updated code)
   const handleCopyCode = (code) => {
     navigator.clipboard.writeText(code);
     setCopied(true);
@@ -142,6 +296,7 @@ const Dashboard = ({ user, onLogout }) => {
 
         {/* Sidebar History List */}
         <div className="sidebar-history">
+<<<<<<< HEAD
           <h3 className="history-title">Chat History</h3>
           {isLoadingHistory ? (
             <div className="history-loader-small">Loading...</div>
@@ -164,6 +319,96 @@ const Dashboard = ({ user, onLogout }) => {
                   </button>
                 </div>
               ))}
+=======
+          <div className="search-container">
+            <Search size={14} className="search-icon" />
+            <input 
+              type="text" 
+              placeholder="Search conversations..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
+            {searchQuery && <X size={14} className="clear-search" onClick={() => setSearchQuery('')} />}
+          </div>
+
+          {isLoadingHistory ? (
+            <div className="history-loader-small">Loading...</div>
+          ) : chatHistory.length > 0 ? (
+            <div className="history-scroll-area">
+              {Object.entries(groupedHistory).map(([groupName, chats]) => {
+                if (chats.length === 0) return null;
+                
+                const formatLabel = {
+                  pinned: "📌 Pinned",
+                  today: "Today",
+                  yesterday: "Yesterday",
+                  last7days: "Previous 7 Days",
+                  older: "Older"
+                };
+
+                return (
+                  <div key={groupName} className="history-group">
+                    <h3 className="history-title">{formatLabel[groupName]}</h3>
+                    <div className="history-list">
+                      {chats.map((chat) => {
+                        const isDeleting = deletingIds.has(chat._id);
+                        const isSlidingOut = slidingOutIds.has(chat._id);
+                        const isEditing = editingChatId === chat._id;
+                        
+                        return (
+                        <div 
+                          key={chat._id} 
+                          className={`history-list-item ${selectedHistoryItem?._id === chat._id ? 'active' : ''} ${isDeleting ? 'deleting' : ''} ${isSlidingOut ? 'slide-out' : ''}`}
+                          onClick={() => !isDeleting && !isEditing && setSelectedHistoryItem(chat)}
+                          style={isDeleting ? { pointerEvents: 'none' } : {}}
+                        >
+                          {chat.is_favorite ? <Star size={14} className="history-icon favorite-color" fill="#f59e0b" /> : <Bot size={14} className="history-icon" />}
+                          
+                          {isEditing ? (
+                            <input
+                              type="text"
+                              className="inline-edit-input"
+                              value={editTitle}
+                              autoFocus
+                              onChange={(e) => setEditTitle(e.target.value)}
+                              onBlur={() => handleRenameSubmit(chat._id)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleRenameSubmit(chat._id);
+                                if (e.key === 'Escape') setEditingChatId(null);
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          ) : (
+                            <span className="history-truncate">
+                              {isDeleting ? "Deleting..." : (chat.title || chat.prompt)}
+                            </span>
+                          )}
+
+                          {!isDeleting && !isEditing && (
+                            <div className="history-actions" onClick={e => e.stopPropagation()}>
+                              <button className="action-btn" onClick={() => handleUpdateChat(chat._id, { is_pinned: !chat.is_pinned })} title={chat.is_pinned ? "Unpin" : "Pin"}>
+                                <Pin size={12} className={chat.is_pinned ? 'pinned-active' : ''} />
+                              </button>
+                              <button className="action-btn" onClick={() => handleUpdateChat(chat._id, { is_favorite: !chat.is_favorite })} title={chat.is_favorite ? "Unfavorite" : "Favorite"}>
+                                <Star size={12} className={chat.is_favorite ? 'favorite-active' : ''} />
+                              </button>
+                              <button className="action-btn" onClick={() => { setEditingChatId(chat._id); setEditTitle(chat.title || chat.prompt); }} title="Rename">
+                                <Edit2 size={12} />
+                              </button>
+                              <button className="delete-chat-btn" onClick={(e) => handleDeleteChat(e, chat._id, chat.title || chat.prompt)} title="Delete Chat">
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+>>>>>>> 9640e9d (Updated code)
             </div>
           ) : (
             <div className="history-empty">No past chats</div>
@@ -193,7 +438,11 @@ const Dashboard = ({ user, onLogout }) => {
           </div>
         </header>
 
+<<<<<<< HEAD
         <div className="task-container">
+=======
+        <div className="task-container" ref={mainContentRef}>
+>>>>>>> 9640e9d (Updated code)
           
           {selectedHistoryItem ? (
             <div className="historical-view animate-fade-in">
@@ -310,7 +559,19 @@ const Dashboard = ({ user, onLogout }) => {
                     </pre>
                   ) : (
                     <div className="markdown-body">
+<<<<<<< HEAD
                       <ReactMarkdown>{result.final_answer}</ReactMarkdown>
+=======
+                      {isStreaming ? (
+                        <StreamingMarkdown 
+                          content={result.final_answer} 
+                          onComplete={() => setIsStreaming(false)}
+                          scrollRef={mainContentRef}
+                        />
+                      ) : (
+                        <ReactMarkdown>{result.final_answer}</ReactMarkdown>
+                      )}
+>>>>>>> 9640e9d (Updated code)
                     </div>
                   )}
                 </div>
@@ -385,6 +646,29 @@ const Dashboard = ({ user, onLogout }) => {
           </div>
         </div>
       )}
+<<<<<<< HEAD
+=======
+
+      {/* Undo Delete Toast Notification */}
+      {undoToast && (
+        <div className="toast-notification undo-toast animate-fade-in">
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Trash2 size={16} /> 
+            Deleted "{undoToast.title.length > 20 ? undoToast.title.substring(0,20)+'...' : undoToast.title}"
+          </span>
+          <button className="undo-btn" onClick={handleUndoDelete}>
+            <Clock size={14} /> Undo
+          </button>
+        </div>
+      )}
+
+      {/* Normal Toast */}
+      {toast && (
+        <div className="toast-notification">
+          {toast}
+        </div>
+      )}
+>>>>>>> 9640e9d (Updated code)
     </div>
   );
 };

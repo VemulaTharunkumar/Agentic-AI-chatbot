@@ -10,6 +10,10 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from orchestrator.orchestrator_controller import Orchestrator
 from ui.nlp_router import detect_intent, select_agents
+<<<<<<< HEAD
+=======
+from agents.formatter_agent import ResponseFormatter
+>>>>>>> 9640e9d (Updated code)
 import database as db
 
 app = FastAPI(title="Agentic AI System")
@@ -28,6 +32,10 @@ app.add_middleware(
 
 # Initialize Orchestrator globally
 orchestrator = Orchestrator()
+<<<<<<< HEAD
+=======
+response_formatter = ResponseFormatter()
+>>>>>>> 9640e9d (Updated code)
 
 # --- Pydantic Models ---
 class TaskRequest(BaseModel):
@@ -38,6 +46,16 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 
+<<<<<<< HEAD
+=======
+from typing import Optional
+
+class ChatUpdateRequest(BaseModel):
+    title: Optional[str] = None
+    is_pinned: Optional[bool] = None
+    is_favorite: Optional[bool] = None
+
+>>>>>>> 9640e9d (Updated code)
 # --- Endpoints ---
 
 @app.post("/api/signup")
@@ -83,6 +101,25 @@ async def delete_chat(chat_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+<<<<<<< HEAD
+=======
+@app.put("/api/history/{chat_id}")
+async def update_chat(chat_id: str, req: ChatUpdateRequest):
+    """Updates chat history metadata like title, is_pinned, is_favorite."""
+    try:
+        updates = {k: v for k, v in req.dict().items() if v is not None}
+        if not updates:
+            return {"status": "success", "message": "No fields to update"}
+            
+        success = db.update_chat(chat_id, updates)
+        if success:
+            return {"status": "success", "message": "Chat updated"}
+        else:
+            raise HTTPException(status_code=404, detail="Chat not found or update failed")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+>>>>>>> 9640e9d (Updated code)
 @app.post("/api/task")
 async def run_task(req: TaskRequest):
     user_task = req.task
@@ -90,17 +127,39 @@ async def run_task(req: TaskRequest):
         raise HTTPException(status_code=400, detail="Task cannot be empty")
         
     try:
+<<<<<<< HEAD
         intent = detect_intent(user_task)
+=======
+        intent, confidence = detect_intent(user_task)
+>>>>>>> 9640e9d (Updated code)
         agents = select_agents(intent)
         outputs = {}
 
         if intent == "GREETING":
             greet = orchestrator.research.run(user_task)
+<<<<<<< HEAD
+=======
+            final_answer = greet or "👋 Hi! How can I help you today?"
+            
+            chat_id = db.save_chat_history(
+                user_id=req.username,
+                prompt=user_task,
+                agent="research",
+                response=final_answer
+            )
+
+>>>>>>> 9640e9d (Updated code)
             return {
                 "intent": intent,
                 "agents": agents,
                 "outputs": {},
+<<<<<<< HEAD
                 "final_answer": greet or "👋 Hi! How can I help you today?"
+=======
+                "final_answer": final_answer,
+                "is_code": False,
+                "chat_id": chat_id
+>>>>>>> 9640e9d (Updated code)
             }
 
         else:
@@ -126,6 +185,7 @@ async def run_task(req: TaskRequest):
 
             # Determine Final Answer
             final_answer = ""
+<<<<<<< HEAD
             is_code = False
             
             if intent == "CODE" and "coder" in outputs:
@@ -138,6 +198,20 @@ async def run_task(req: TaskRequest):
             else:
                 final_answer = outputs.get("planner") or outputs.get("research") or ""
 
+=======
+            is_code = False  # Always False so ReactMarkdown renders the formatted explanations and code blocks
+            
+            if intent == "CODE" and "coder" in outputs:
+                final_answer = outputs["coder"].strip()
+                # Do not strip code blocks, let markdown render them
+            else:
+                final_answer = outputs.get("planner") or outputs.get("research") or ""
+
+            # Apply the ResponseFormatter layer
+            if final_answer:
+                final_answer = response_formatter.format_response(final_answer)
+
+>>>>>>> 9640e9d (Updated code)
             # Save to Database
             agents_str = ", ".join(agents)
             chat_id = db.save_chat_history(

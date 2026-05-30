@@ -96,7 +96,11 @@ def create_user(username: str, password: str) -> bool:
         print(f"❌ Insert failed: {e}")
         return False
 
+<<<<<<< HEAD
 def save_chat_history(user_id: str, prompt: str, agent: str, response: str):
+=======
+def save_chat_history(user_id: str, prompt: str, agent: str, response: str, title: str = None):
+>>>>>>> 9640e9d (Updated code)
     """
     Saves a chat record to the MongoDB database.
 
@@ -105,14 +109,26 @@ def save_chat_history(user_id: str, prompt: str, agent: str, response: str):
         prompt (str): The user's input prompt.
         agent (str): The agent(s) that generated the response.
         response (str): The final generated response.
+<<<<<<< HEAD
+=======
+        title (str, optional): A short title for the chat.
+>>>>>>> 9640e9d (Updated code)
     """
     collection = get_db_collection()
     if collection is not None:
         chat_record = {
             "user_id": user_id,
             "prompt": prompt,
+<<<<<<< HEAD
             "agent": agent,
             "response": response,
+=======
+            "title": title or (prompt[:30] + "..." if len(prompt) > 30 else prompt),
+            "agent": agent,
+            "response": response,
+            "is_pinned": False,
+            "is_favorite": False,
+>>>>>>> 9640e9d (Updated code)
             "timestamp": datetime.utcnow()
         }
         try:
@@ -158,3 +174,24 @@ def delete_chat(chat_id: str):
             print(f"Failed to delete chat: {e}")
             return False
     return False
+<<<<<<< HEAD
+=======
+
+def update_chat(chat_id: str, updates: dict):
+    """
+    Updates a specific chat record by its ID with the provided fields.
+    """
+    collection = get_db_collection()
+    if collection is not None:
+        try:
+            # Filter out keys that shouldn't be updated or are empty dicts if needed
+            result = collection.update_one(
+                {"_id": ObjectId(chat_id)},
+                {"$set": updates}
+            )
+            return result.modified_count > 0 or result.matched_count > 0
+        except Exception as e:
+            print(f"Failed to update chat: {e}")
+            return False
+    return False
+>>>>>>> 9640e9d (Updated code)

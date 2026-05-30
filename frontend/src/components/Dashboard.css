@@ -747,3 +747,200 @@
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
+<<<<<<< HEAD
+=======
+
+/* Delete Animation Styles */
+.history-list-item.deleting {
+  opacity: 0.6;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.history-list-item.slide-out {
+  animation: slideLeftFadeOut 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes slideLeftFadeOut {
+  0% { transform: translateX(0); opacity: 0.6; }
+  100% { transform: translateX(-100%); opacity: 0; }
+}
+
+.toast-notification {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-weight: 500;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Conversation Management UI Enhancements */
+.search-container {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  position: relative;
+}
+
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.5rem;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.search-icon {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.clear-search {
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+}
+
+.clear-search:hover {
+  color: #fff;
+}
+
+.history-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.history-group {
+  margin-bottom: 1rem;
+}
+
+.history-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 0 1rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.history-list-item {
+  position: relative;
+}
+
+.history-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  position: absolute;
+  right: 0.5rem;
+  background: linear-gradient(90deg, transparent, rgba(15, 23, 42, 0.9) 20%);
+  padding-left: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.history-list-item:hover .history-actions,
+.history-actions:hover {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.action-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 0.2rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.action-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.pinned-active {
+  color: #3b82f6;
+  fill: #3b82f6;
+}
+
+.favorite-active {
+  color: #f59e0b;
+  fill: #f59e0b;
+}
+
+.favorite-color {
+  color: #f59e0b;
+}
+
+.inline-edit-input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.85rem;
+  outline: none;
+  width: 100%;
+}
+
+.undo-toast {
+  display: flex;
+  justify-content: space-between;
+  min-width: 300px;
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #f59e0b;
+}
+
+.undo-btn {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #f59e0b;
+  border-radius: 4px;
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: background 0.2s;
+}
+
+.undo-btn:hover {
+  background: rgba(245, 158, 11, 0.3);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+>>>>>>> 9640e9d (Updated code)
