@@ -4,7 +4,7 @@ import { LogOut, Copy, Send, Bot, Check, LayoutDashboard, Brain, Globe, Code, Fi
 import ThinkingLoader from './ThinkingLoader';
 import StreamingMarkdown from './StreamingMarkdown';
 import './Dashboard.css';
-const API_URL = import.meta.env.VITE_API_URL || "https://agentic-ai-chatbot-2-136d.onrender.com";
+const API_URL = import.meta.env.VITE_API_URL || "https://agentic-ai-chatbot-1-30s7.onrender.com";
 const Dashboard = ({ user, onLogout }) => {
   const [task, setTask] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);

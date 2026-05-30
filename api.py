@@ -21,7 +21,7 @@ def home():
 # Enable CORS for React frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://agentic-ai-chatbot-2-136d.onrender.com"],  # Adjust in production
+    allow_origins=["*"],  # Adjust in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
