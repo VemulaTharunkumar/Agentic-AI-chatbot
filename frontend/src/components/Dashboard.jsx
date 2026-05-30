@@ -16,6 +16,7 @@ const Dashboard = ({ user, onLogout }) => {
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [selectedHistoryItem, setSelectedHistoryItem] = useState(null);
   const [popupAgent, setPopupAgent] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   // States for delete animation
   const [deletingIds, setDeletingIds] = useState(new Set());
@@ -221,19 +222,27 @@ const Dashboard = ({ user, onLogout }) => {
 
   return (
     <div className="dashboard-layout">
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)}></div>
+      )}
+      
       {/* Sidebar Area */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <div className="app-branding">
             <span className="logo-emoji">🤖</span>
             <h2>Agentic AI</h2>
+            <button className="mobile-close-btn" onClick={() => setIsSidebarOpen(false)}>
+              <X size={20} />
+            </button>
           </div>
         </div>
         
         <nav className="sidebar-nav">
           <div 
             className={`nav-item ${!selectedHistoryItem ? 'active' : ''}`}
-            onClick={() => setSelectedHistoryItem(null)}
+            onClick={() => { setSelectedHistoryItem(null); setIsSidebarOpen(false); }}
           >
             <LayoutDashboard size={20} />
             <span>New Task</span>
@@ -282,7 +291,7 @@ const Dashboard = ({ user, onLogout }) => {
                         <div 
                           key={chat._id} 
                           className={`history-list-item ${selectedHistoryItem?._id === chat._id ? 'active' : ''} ${isDeleting ? 'deleting' : ''} ${isSlidingOut ? 'slide-out' : ''}`}
-                          onClick={() => !isDeleting && !isEditing && setSelectedHistoryItem(chat)}
+                          onClick={() => { if (!isDeleting && !isEditing) { setSelectedHistoryItem(chat); setIsSidebarOpen(false); } }}
                           style={isDeleting ? { pointerEvents: 'none' } : {}}
                         >
                           {chat.is_favorite ? <Star size={14} className="history-icon favorite-color" fill="#f59e0b" /> : <Bot size={14} className="history-icon" />}
@@ -353,10 +362,15 @@ const Dashboard = ({ user, onLogout }) => {
       {/* Main Content Area */}
       <main className="main-content">
         <header className="content-header">
-          <div className="header-greeting">
-            <h1>Welcome back, {user?.username}! 👋</h1>
-            <p>What would you like me to work on today?</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+            <button className="mobile-menu-btn" onClick={() => setIsSidebarOpen(true)}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <div className="header-greeting">
+              <h1>Welcome back, {user?.username}! 👋</h1>
+            </div>
           </div>
+          <p className="greeting-subtitle">What would you like me to work on today?</p>
         </header>
 
         <div className="task-container" ref={mainContentRef}>
