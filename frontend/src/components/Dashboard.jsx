@@ -1,19 +1,10 @@
-<<<<<<< HEAD
-import React, { useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import { LogOut, Copy, Send, Bot, Check, LayoutDashboard, Brain, Globe, Code, FileText, Trash2 } from 'lucide-react';
-import ThinkingLoader from './ThinkingLoader';
-import './Dashboard.css';
-const API_URL = "https://agentic-ai-chatbot-1-30s7.onrender.com";
-=======
 import React, { useState, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { LogOut, Copy, Send, Bot, Check, LayoutDashboard, Brain, Globe, Code, FileText, Trash2, Search, Pin, Star, Edit2, MoreVertical, X, Clock } from 'lucide-react';
 import ThinkingLoader from './ThinkingLoader';
 import StreamingMarkdown from './StreamingMarkdown';
 import './Dashboard.css';
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
->>>>>>> 9640e9d (Updated code)
+const API_URL = import.meta.env.VITE_API_URL || "https://agentic-ai-chatbot-2-136d.onrender.com";
 const Dashboard = ({ user, onLogout }) => {
   const [task, setTask] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -25,8 +16,6 @@ const Dashboard = ({ user, onLogout }) => {
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [selectedHistoryItem, setSelectedHistoryItem] = useState(null);
   const [popupAgent, setPopupAgent] = useState(null);
-<<<<<<< HEAD
-=======
   
   // States for delete animation
   const [deletingIds, setDeletingIds] = useState(new Set());
@@ -43,7 +32,6 @@ const Dashboard = ({ user, onLogout }) => {
   // Streaming state
   const [isStreaming, setIsStreaming] = useState(false);
   const mainContentRef = useRef(null);
->>>>>>> 9640e9d (Updated code)
 
   React.useEffect(() => {
     const fetchHistory = async () => {
@@ -76,11 +64,7 @@ const Dashboard = ({ user, onLogout }) => {
     setPopupAgent(null);
 
     try {
-<<<<<<< HEAD
-      const response = await fetch('https://agentic-ai-chatbot-1-30s7.onrender.com/api/task', {
-=======
       const response = await fetch(`${API_URL}/api/task`, {
->>>>>>> 9640e9d (Updated code)
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ task, username: user.username })
@@ -90,27 +74,18 @@ const Dashboard = ({ user, onLogout }) => {
 
       if (response.ok) {
         setResult(data);
-<<<<<<< HEAD
-=======
         setIsStreaming(true);
->>>>>>> 9640e9d (Updated code)
         
         // Append to chat history
         const newHistoryItem = {
           _id: data.chat_id || Date.now().toString(), // Use actual DB ID
           prompt: task,
-<<<<<<< HEAD
-          response: data.final_answer,
-          agent: data.agents.join(", "),
-          timestamp: new Date().toISOString()
-=======
           title: task.length > 30 ? task.substring(0, 30) + '...' : task,
           response: data.final_answer,
           agent: data.agents.join(", "),
           timestamp: new Date().toISOString(),
           is_pinned: false,
           is_favorite: false
->>>>>>> 9640e9d (Updated code)
         };
         setChatHistory(prev => [...prev, newHistoryItem]);
         
@@ -124,33 +99,6 @@ const Dashboard = ({ user, onLogout }) => {
     }
   };
 
-<<<<<<< HEAD
-  const handleDeleteChat = async (e, chatId) => {
-    e.stopPropagation(); // prevent selecting the chat when clicking delete
-
-    if (!window.confirm("Are you sure you want to delete this chat history?")) return;
-
-    try {
-      const res = await fetch(`https://agentic-ai-chatbot-1-30s7.onrender.com/api/history/${chatId}`, {
-        method: 'DELETE'
-      });
-      if (res.ok) {
-        // Remove from local state
-        setChatHistory(prev => prev.filter(c => c._id !== chatId));
-        
-        // If the deleted items is currently selected, clear the view
-        if (selectedHistoryItem?._id === chatId) {
-          setSelectedHistoryItem(null);
-        }
-      } else {
-        console.error("Failed to delete chat record");
-      }
-    } catch (err) {
-      console.error("Could not reach backend to delete chat", err);
-    }
-  };
-
-=======
   const handleUpdateChat = async (chatId, updates) => {
     setChatHistory(prev => prev.map(chat => chat._id === chatId ? { ...chat, ...updates } : chat));
     try {
@@ -255,8 +203,6 @@ const Dashboard = ({ user, onLogout }) => {
     return groups;
   };
   const groupedHistory = groupConversations(chatHistory);
-
->>>>>>> 9640e9d (Updated code)
   const handleCopyCode = (code) => {
     navigator.clipboard.writeText(code);
     setCopied(true);
@@ -296,30 +242,6 @@ const Dashboard = ({ user, onLogout }) => {
 
         {/* Sidebar History List */}
         <div className="sidebar-history">
-<<<<<<< HEAD
-          <h3 className="history-title">Chat History</h3>
-          {isLoadingHistory ? (
-            <div className="history-loader-small">Loading...</div>
-          ) : chatHistory.length > 0 ? (
-            <div className="history-list">
-              {chatHistory.map((chat) => (
-                <div 
-                  key={chat._id} 
-                  className={`history-list-item ${selectedHistoryItem?._id === chat._id ? 'active' : ''}`}
-                  onClick={() => setSelectedHistoryItem(chat)}
-                >
-                  <Bot size={14} className="history-icon" />
-                  <span className="history-truncate">{chat.prompt}</span>
-                  <button 
-                    className="delete-chat-btn"
-                    onClick={(e) => handleDeleteChat(e, chat._id)}
-                    title="Delete Chat"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              ))}
-=======
           <div className="search-container">
             <Search size={14} className="search-icon" />
             <input 
@@ -408,7 +330,6 @@ const Dashboard = ({ user, onLogout }) => {
                   </div>
                 );
               })}
->>>>>>> 9640e9d (Updated code)
             </div>
           ) : (
             <div className="history-empty">No past chats</div>
@@ -438,11 +359,7 @@ const Dashboard = ({ user, onLogout }) => {
           </div>
         </header>
 
-<<<<<<< HEAD
-        <div className="task-container">
-=======
         <div className="task-container" ref={mainContentRef}>
->>>>>>> 9640e9d (Updated code)
           
           {selectedHistoryItem ? (
             <div className="historical-view animate-fade-in">
@@ -559,9 +476,6 @@ const Dashboard = ({ user, onLogout }) => {
                     </pre>
                   ) : (
                     <div className="markdown-body">
-<<<<<<< HEAD
-                      <ReactMarkdown>{result.final_answer}</ReactMarkdown>
-=======
                       {isStreaming ? (
                         <StreamingMarkdown 
                           content={result.final_answer} 
@@ -571,7 +485,6 @@ const Dashboard = ({ user, onLogout }) => {
                       ) : (
                         <ReactMarkdown>{result.final_answer}</ReactMarkdown>
                       )}
->>>>>>> 9640e9d (Updated code)
                     </div>
                   )}
                 </div>
@@ -646,9 +559,6 @@ const Dashboard = ({ user, onLogout }) => {
           </div>
         </div>
       )}
-<<<<<<< HEAD
-=======
-
       {/* Undo Delete Toast Notification */}
       {undoToast && (
         <div className="toast-notification undo-toast animate-fade-in">
@@ -668,7 +578,6 @@ const Dashboard = ({ user, onLogout }) => {
           {toast}
         </div>
       )}
->>>>>>> 9640e9d (Updated code)
     </div>
   );
 };
